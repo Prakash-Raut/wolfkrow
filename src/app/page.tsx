@@ -7,7 +7,7 @@ import { ErrorBoundary } from "react-error-boundary";
 export default async function Home() {
   const queryClient = getQueryClient();
 
-  void queryClient.prefetchQuery(trpc.getUser.queryOptions());
+  void queryClient.prefetchQuery(trpc.getWorkflows.queryOptions());
 
   return (
     <main className="container mx-auto max-w-5xl space-y-6">
