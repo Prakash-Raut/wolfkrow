@@ -10,8 +10,8 @@ export default async function Home() {
   void queryClient.prefetchQuery(trpc.getUser.queryOptions());
 
   return (
-    <main>
-      <h1>Users</h1>
+    <main className="container mx-auto max-w-5xl space-y-6">
+      <h1 className="text-5xl font-bold">Home Page</h1>
       <HydrationBoundary state={dehydrate(queryClient)}>
         <ErrorBoundary fallback={<div>Something went wrong</div>}>
           <Suspense fallback={<div>Loading...</div>}>
