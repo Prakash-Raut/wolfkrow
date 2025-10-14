@@ -7,6 +7,7 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { Button } from "../ui/button";
 
 export function ClientGreeting() {
@@ -23,10 +24,24 @@ export function ClientGreeting() {
     }),
   );
 
+  const testAi = useMutation(
+    trpc.testAi.mutationOptions({
+      onSuccess: () => {
+        toast.success("AI Job Queued");
+      },
+      onError: () => {
+        toast.error("AI Job Failed");
+      },
+    }),
+  );
+
   return (
     <section className="flex flex-col gap-4">
       <h2 className="text-2xl font-bold">Workflows</h2>
       <p className="font-semibold">{JSON.stringify(workflows, null, 2)}</p>
+      <Button onClick={() => testAi.mutate()} disabled={testAi.isPending}>
+        Test AI
+      </Button>
       <Button
         onClick={() => createWorkflow.mutate()}
         disabled={createWorkflow.isPending}

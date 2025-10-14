@@ -7,14 +7,6 @@ export type TestEvent = {
 
 export type AIChatCompletion = {
   name: "ai/chat.completion";
-  data: {
-    prompt: {
-      role: "system" | "user" | "assistant";
-      content: string;
-    }[];
-    temperature: number;
-    maxOutputTokens: number;
-  };
 };
 
 export type EventUnion = TestEvent | AIChatCompletion;
