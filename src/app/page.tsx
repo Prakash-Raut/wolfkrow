@@ -7,7 +7,7 @@ import { ErrorBoundary } from "react-error-boundary";
 export default async function Home() {
   const queryClient = getQueryClient();
 
-  void queryClient.prefetchQuery(trpc.getUsers.queryOptions());
+  void queryClient.prefetchQuery(trpc.getUser.queryOptions());
 
   return (
     <main>
