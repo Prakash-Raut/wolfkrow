@@ -1,5 +1,6 @@
 "use client";
 
+import { useHasActiveSubscription } from "@/hooks/use-subscription";
 import { authClient } from "@/lib/auth-client";
 import { useTRPC } from "@/trpc/client";
 import {
@@ -7,6 +8,7 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
+import { StarIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 
@@ -16,6 +18,10 @@ export function ClientGreeting() {
   const { data: workflows } = useSuspenseQuery(
     trpc.getWorkflows.queryOptions(),
   );
+
+  const { hasActiveSubscription, subscription, isLoading } =
+    useHasActiveSubscription();
+
   const createWorkflow = useMutation(
     trpc.createWorkflow.mutationOptions({
       onSuccess: () => {
@@ -38,8 +44,13 @@ export function ClientGreeting() {
   return (
     <section className="flex flex-col gap-4">
       <h2 className="text-2xl font-bold">Workflows</h2>
+
       <p className="font-semibold">{JSON.stringify(workflows, null, 2)}</p>
-      <Button onClick={() => testAi.mutate()} disabled={testAi.isPending}>
+      <Button
+        variant="ghost"
+        onClick={() => testAi.mutate()}
+        disabled={testAi.isPending}
+      >
         Test AI
       </Button>
       <Button
@@ -48,7 +59,15 @@ export function ClientGreeting() {
       >
         Create Workflow
       </Button>
-      <Button onClick={() => authClient.signOut()}>Logout</Button>
+      {!hasActiveSubscription && !isLoading && (
+        <Button onClick={() => authClient.checkout({ slug: "Wolfkrow-Pro" })}>
+          <StarIcon className="size-4" />
+          Upgrade to Pro
+        </Button>
+      )}
+      <Button variant="outline" onClick={() => authClient.signOut()}>
+        Logout
+      </Button>
     </section>
   );
 }
