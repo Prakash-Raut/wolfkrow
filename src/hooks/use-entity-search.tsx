@@ -33,7 +33,7 @@ export function useEntitySearch<T extends { search: string; page: number }>({
     }, debounceMs);
 
     return () => clearTimeout(timer);
-  }, [localSearch, params, setParams, debounceMs]);
+  }, [localSearch, params.search, setParams, debounceMs]);
 
   useEffect(() => {
     setLocalSearch(params.search);
