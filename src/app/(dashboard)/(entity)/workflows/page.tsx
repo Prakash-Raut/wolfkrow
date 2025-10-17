@@ -1,7 +1,7 @@
 import {
   WorkflowContainer,
   WorkflowList,
-  WorkflowsHeader,
+  WorkflowLoading,
 } from "@/features/workflows/components/workflow";
 import { loadWorkflowsParams } from "@/features/workflows/params";
 import { prefetchWorkflows } from "@/features/workflows/server/prefetch";
@@ -21,16 +21,14 @@ export default async function Page({ searchParams }: PageProps) {
   prefetchWorkflows(params);
 
   return (
-    <section className="container mx-auto max-w-6xl my-6">
+    <WorkflowContainer>
       <HydrateClient>
         <ErrorBoundary fallback={<div>Something went wrong</div>}>
-          <Suspense fallback={<div>Loading...</div>}>
-            <WorkflowContainer>
-              <WorkflowList />
-            </WorkflowContainer>
+          <Suspense fallback={<WorkflowLoading />}>
+            <WorkflowList />
           </Suspense>
         </ErrorBoundary>
       </HydrateClient>
-    </section>
+    </WorkflowContainer>
   );
 }
