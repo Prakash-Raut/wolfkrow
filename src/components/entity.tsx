@@ -1,5 +1,11 @@
-import { PlusIcon } from "lucide-react";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  PlusIcon,
+  SearchIcon,
+} from "lucide-react";
 import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 
 type EntityHeaderProps = {
   title: string;
@@ -7,24 +13,9 @@ type EntityHeaderProps = {
   createButtonLabel?: string;
   isDisabled?: boolean;
   isLoading?: boolean;
-} & (
-  | {
-      /** Click handler for create button */
-      onCreate: () => void;
-      /** Optional href for button link */
-      createButtonHref?: string;
-    }
-  | {
-      /** Href for button link when no click handler */
-      createButtonHref: string;
-      onCreate?: never;
-    }
-  | {
-      /** No button interactions */
-      createButtonHref?: never;
-      onCreate?: never;
-    }
-);
+  onCreate?: () => void;
+  createButtonHref?: string;
+};
 
 export const EntityHeader = ({
   title,
@@ -76,6 +67,73 @@ export const EntityContainer = ({
         {children}
       </div>
       {pagination}
+    </div>
+  );
+};
+
+type EntitySearchProps = {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+};
+
+export const EntitySearch = ({
+  value,
+  onChange,
+  placeholder = "Search",
+}: EntitySearchProps) => {
+  return (
+    <div className="relative ml-auto">
+      <SearchIcon className="size-4 absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
+      <Input
+        type="text"
+        className="max-w-[200px] bg-background shadow-none border-none pl-8"
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </div>
+  );
+};
+
+type EntityPaginationProps = {
+  page: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+  disabled?: boolean;
+};
+
+export const EntityPagination = ({
+  page,
+  totalPages,
+  onPageChange,
+  disabled,
+}: EntityPaginationProps) => {
+  return (
+    <div className="flex flex-row items-center gap-2">
+      <div className="flex-1 text-sm text-muted-foreground">
+        Page {page} of {totalPages ?? 1}
+      </div>
+      <div className="flex items-center justify-end space-x-2">
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={page === 1 || disabled}
+          onClick={() => onPageChange(Math.max(1, page - 1))}
+        >
+          <ChevronLeftIcon className="size-4" />
+          Previous
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={page === totalPages || disabled}
+          onClick={() => onPageChange(Math.min(totalPages, page + 1))}
+        >
+          <ChevronRightIcon className="size-4" />
+          Next
+        </Button>
+      </div>
     </div>
   );
 };

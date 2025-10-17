@@ -54,9 +54,13 @@ export function AppSidebar() {
   const router = useRouter();
   const pathname = usePathname();
 
-  const handleUpgradeAccount = () => {};
+  const handleUpgradeAccount = async () => {
+    await authClient.checkout({ slug: "pro" });
+  };
 
-  const handleBilling = () => {};
+  const handleBilling = async () => {
+    await authClient.customer.portal();
+  };
 
   const handleSignout = async () => {
     await authClient.signOut({
