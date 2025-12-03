@@ -1,4 +1,3 @@
-import { AppHeader } from "@/components/app-header";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
@@ -10,10 +9,7 @@ export default function DashboardLayout({
   return (
     <SidebarProvider>
       <AppSidebar />
-      <main className="w-full">
-        <AppHeader />
-        {children}
-      </main>
+      <main className="w-full py-6">{children}</main>
     </SidebarProvider>
   );
 }

@@ -1,5 +1,5 @@
 import { PAGINATION } from "@/config/constants";
-import { NodeType } from "@/generated/prisma";
+import { NodeType, Prisma } from "@/generated/prisma";
 import prisma from "@/lib/db";
 import {
   createTRPCRouter,
@@ -12,7 +12,7 @@ import { z } from "zod";
 
 export const workflowsRouter = createTRPCRouter({
   create: premiumProcedure.mutation(async ({ ctx }) => {
-    return await prisma.workflow.create({
+    return prisma.workflow.create({
       data: {
         name: generateSlug(3),
         userId: ctx.auth.user.id,
@@ -41,7 +41,7 @@ export const workflowsRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const { page, pageSize, search } = input;
       const [items, totalCount] = await Promise.all([
-        await prisma.workflow.findMany({
+        prisma.workflow.findMany({
           skip: (page - 1) * pageSize,
           take: pageSize,
           where: {
@@ -55,7 +55,7 @@ export const workflowsRouter = createTRPCRouter({
             updatedAt: "desc",
           },
         }),
-        await prisma.workflow.count({
+        prisma.workflow.count({
           where: {
             userId: ctx.auth.user.id,
             name: {
@@ -127,18 +127,88 @@ export const workflowsRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string(),
-        name: z.string(),
+        nodes: z.array(
+          z.object({
+            id: z.string(),
+            type: z.string().nullish(),
+            position: z.object({ x: z.number(), y: z.number() }),
+            data: z.record(z.string(), z.unknown()).optional(),
+          }),
+        ),
+        edges: z.array(
+          z.object({
+            source: z.string(),
+            target: z.string(),
+            sourceHandle: z.string().nullish(),
+            targetHandle: z.string().nullish(),
+          }),
+        ),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      return await prisma.workflow.update({
+      const { id, nodes, edges } = input;
+
+      const workflow = await prisma.workflow.findUniqueOrThrow({
         where: {
           id: input.id,
           userId: ctx.auth.user.id,
         },
-        data: {
-          name: input.name,
-        },
+      });
+
+      // Transaction to ensure consistency
+      return prisma.$transaction(async (tx) => {
+        // Delete existing nodes and connections
+        await tx.node.deleteMany({
+          where: { workflowId: id },
+        });
+
+        // Create new nodes
+        await tx.node.createMany({
+          data: nodes.map((node) => {
+            return {
+              id: node.id,
+              workflowId: id,
+              name: node.type ?? "Unknown",
+              type: node.type as NodeType,
+              position: node.position,
+              data: (node.data ?? {}) as Prisma.InputJsonValue,
+            };
+          }),
+        });
+
+        // Create new connections
+        await tx.connection.createMany({
+          data: edges.map((edge) => {
+            return {
+              workflowId: id,
+              fromNodeId: edge.source,
+              toNodeId: edge.target,
+              fromOutput: edge.sourceHandle ?? "main",
+              toInput: edge.targetHandle ?? "main",
+            };
+          }),
+        });
+
+        // update worflow updatedAt timestamp
+        await tx.workflow.update({
+          where: { id },
+          data: { updatedAt: new Date() },
+        });
+
+        return workflow;
+      });
+    }),
+  updateName: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return prisma.workflow.update({
+        where: { id: input.id, userId: ctx.auth.user.id },
+        data: { name: input.name },
       });
     }),
   delete: protectedProcedure
@@ -148,7 +218,7 @@ export const workflowsRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      return await prisma.workflow.delete({
+      return prisma.workflow.delete({
         where: {
           id: input.id,
           userId: ctx.auth.user.id,

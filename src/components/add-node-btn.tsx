@@ -6,14 +6,14 @@ import { NodeSelector } from "./node-selector";
 import { Button } from "./ui/button";
 
 export const AddNodeBtn = memo(() => {
-  const [open, setOpen] = useState(false);
+  const [selectorOpen, setSelectorOpen] = useState(false);
 
   return (
-    <NodeSelector open={open} onOpenChange={setOpen}>
+    <NodeSelector open={selectorOpen} onOpenChange={setSelectorOpen}>
       <Button
         size="icon"
         variant="outline"
-        onClick={() => {}}
+        onClick={() => setSelectorOpen(true)}
         className="bg-background"
       >
         <PlusIcon className="size-4" />
