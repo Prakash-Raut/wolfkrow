@@ -8,11 +8,11 @@ import { PlaceholderNode } from "./react-flow/placeholder-node";
 import { WorkflowNode } from "./workflow-node";
 
 export const InitialNode = memo((props: NodeProps) => {
-  const [open, setOpen] = useState(false);
+  const [selectorOpen, setSelectorOpen] = useState(false);
   return (
-    <NodeSelector open={open} onOpenChange={setOpen}>
+    <NodeSelector open={selectorOpen} onOpenChange={setSelectorOpen}>
       <WorkflowNode showToolbar>
-        <PlaceholderNode {...props} onClick={() => {}}>
+        <PlaceholderNode {...props} onClick={() => setSelectorOpen(true)}>
           <div className="">
             <PlusIcon className="size-4" />
           </div>

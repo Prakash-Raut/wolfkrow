@@ -3,9 +3,6 @@
 import { EntityErrorView, EntityLoadingView } from "@/components/entity";
 import { useSuspenseWorkflow } from "@/features/workflows/hooks/use-workflow";
 import {
-  addEdge,
-  applyEdgeChanges,
-  applyNodeChanges,
   Background,
   Connection,
   Controls,
@@ -16,15 +13,23 @@ import {
   NodeChange,
   Panel,
   ReactFlow,
+  addEdge,
+  applyEdgeChanges,
+  applyNodeChanges,
 } from "@xyflow/react";
 import { useCallback, useState } from "react";
 
 import { AddNodeBtn } from "@/components/add-node-btn";
 import { nodeConfig } from "@/config/node";
 import "@xyflow/react/dist/style.css";
+import { useSetAtom } from "jotai";
+import { editorAtom } from "../store/atoms";
 
 export const Editor = ({ workflowId }: { workflowId: string }) => {
   const { data: workflow } = useSuspenseWorkflow(workflowId);
+
+  const setEditor = useSetAtom(editorAtom);
+
   const [nodes, setNodes] = useState<Node[]>(workflow.nodes);
   const [edges, setEdges] = useState<Edge[]>(workflow.edges);
 
@@ -47,7 +52,7 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
   );
 
   return (
-    <div style={{ width: "100vw", height: "100vh" }}>
+    <div style={{ width: "80vw", height: "80vh" }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -55,6 +60,12 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         nodeTypes={nodeConfig}
+        onInit={setEditor}
+        snapGrid={[10, 10]}
+        snapToGrid
+        panOnScroll
+        panOnDrag={false}
+        selectionOnDrag
         fitView
       >
         <Background />
